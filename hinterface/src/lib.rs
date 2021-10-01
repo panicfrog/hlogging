@@ -35,8 +35,30 @@ impl std::fmt::Display for LoggingLevel {
 pub enum Metadata {
     String(String),
     Display(Box<dyn Display>),
-    Array(Box<Metadata>),
+    Array(Vec<Metadata>),
     Map(HashMap<String, Metadata>),
+}
+
+impl std::fmt::Display for Metadata {
+        fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+            match self {
+                Metadata::String(s) => write!(fmt,"{}", s),
+                Metadata::Display(r) => write!(fmt, "{}", r),
+                Metadata::Array(v) => {
+                    let s: String = v.iter().map(|d| {
+                        d.to_string()
+                    }).collect::<Vec<_>>()
+                        .join(",");
+                    write!(fmt, "[{}]", s)
+                },
+                Metadata::Map(m) => {
+                    let v: String = m.iter().map(|(k, v)| {
+                        format!("{},{}", k, v)
+                    }).collect::<Vec<String>>().join(",");
+                    write!(fmt, "{{ {} }}", v)
+                }
+            }
+        }
 }
 
 pub trait LogHandler {

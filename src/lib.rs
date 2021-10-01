@@ -4,14 +4,6 @@ use std::fs::{OpenOptions, File};
 use std::io::Write;
 use std::path::Path;
 
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}
-
 #[no_mangle]
 pub extern "C" fn write_log_file(file_path: *const c_char, message: *const c_char) -> c_int {
     let file_path = unsafe {
