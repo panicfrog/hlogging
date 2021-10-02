@@ -1,8 +1,8 @@
 use hinterface::{LogHandler, LoggingLevel, Metadata};
 use chrono::Local;
-use chrono::format::DelayedFormat;
 use std::io::{stdout, Write};
 
+#[allow(dead_code)]
 pub struct StreamLogger {
     label: String
 }

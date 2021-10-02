@@ -65,6 +65,7 @@ pub trait LogHandler {
     fn log(&self, level: &LoggingLevel, metadata: &Metadata, source: String, value: String);
 }
 
+#[allow(dead_code)]
 pub struct Logger<T: LogHandler + Sized> {
     level: LoggingLevel,
     label: String,

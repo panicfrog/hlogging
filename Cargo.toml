@@ -3,22 +3,21 @@ name = "hlogging"
 version = "0.1.0"
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
 name = "hlogging"
-crate-type = ["staticlib", "cdylib"]
+crate-type = ["staticlib"]
 
-[package.metadata.ios]
-build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
+[workspace]
+members = [
+    "crates/*"
+]
 
-[package.metadata.android]
-build_targets = ["aarch64-linux-android", "armv7-linux-androideabi"]
-min_sdk_version = 16
-target_sdk_version = 29
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-hinterface={path="./hinterface"}
-stream_logger={path="./stream_logger"}
+ffi = { path = "crates/ffi", version = "0.1.0" }
+hinterface = { path = "crates/hinterface", version = "0.1.0" }
+stream_logger = { path = "crates/stream_logger", version = "0.1.0" }
 
 [build-dependencies]
 cbindgen = "0.20.0"

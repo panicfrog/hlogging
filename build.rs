@@ -1,12 +1,13 @@
 extern crate cbindgen;
 
 use std::env;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use cbindgen::{Config, Language};
 
 
 fn main() {
     let crate_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
+    let crate_dir = Path::new(&crate_dir).join("crates").join("ffi");
 
     let package_name = env::var("CARGO_PKG_NAME").unwrap();
     let output_file = target_dir()

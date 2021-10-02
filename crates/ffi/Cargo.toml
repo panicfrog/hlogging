@@ -1,12 +1,11 @@
 [package]
-name = "hinterface"
+name = "ffi"
 version = "0.1.0"
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
-name = "hinterface"
-crate-type = ["staticlib", "cdylib"]
+name = "ffi"
+crate-type = ["staticlib", "cdylib", "dylib", "rlib"]
 
 [package.metadata.ios]
 build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
