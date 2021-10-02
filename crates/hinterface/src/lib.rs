@@ -40,25 +40,28 @@ pub enum Metadata {
 }
 
 impl std::fmt::Display for Metadata {
-        fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-            match self {
-                Metadata::String(s) => write!(fmt,"{}", s),
-                Metadata::Display(r) => write!(fmt, "{}", r),
-                Metadata::Array(v) => {
-                    let s: String = v.iter().map(|d| {
-                        d.to_string()
-                    }).collect::<Vec<_>>()
-                        .join(",");
-                    write!(fmt, "[{}]", s)
-                },
-                Metadata::Map(m) => {
-                    let v: String = m.iter().map(|(k, v)| {
-                        format!("{},{}", k, v)
-                    }).collect::<Vec<String>>().join(",");
-                    write!(fmt, "{{ {} }}", v)
-                }
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Metadata::String(s) => write!(fmt, "{}", s),
+            Metadata::Display(r) => write!(fmt, "{}", r),
+            Metadata::Array(v) => {
+                let s: String = v
+                    .iter()
+                    .map(|d| d.to_string())
+                    .collect::<Vec<_>>()
+                    .join(",");
+                write!(fmt, "[{}]", s)
+            }
+            Metadata::Map(m) => {
+                let v: String = m
+                    .iter()
+                    .map(|(k, v)| format!("{},{}", k, v))
+                    .collect::<Vec<String>>()
+                    .join(",");
+                write!(fmt, "{{ {} }}", v)
             }
         }
+    }
 }
 
 pub trait LogHandler {
@@ -76,6 +79,14 @@ impl<T> Logger<T>
 where
     T: LogHandler + Sized,
 {
+    pub fn new(level: LoggingLevel, label: &str, handler: T) -> Self {
+        Logger {
+            level,
+            label: label.to_string(),
+            handler,
+        }
+    }
+
     fn log(&self, level: LoggingLevel, metadata: &Metadata, source: String, content: String) {
         if self.level > level {
             return;
@@ -84,9 +95,9 @@ where
     }
 
     pub fn debug(&self, metadata: &Metadata, source: String, message: String) {
-       self.log(LoggingLevel::Debug, metadata, source, message);
+        self.log(LoggingLevel::Debug, metadata, source, message);
     }
-    pub fn info(&self,  metadata: &Metadata, source: String, message: String) {
+    pub fn info(&self, metadata: &Metadata, source: String, message: String) {
         self.log(LoggingLevel::Info, metadata, source, message);
     }
     pub fn notice(&self, metadata: &Metadata, source: String, message: String) {

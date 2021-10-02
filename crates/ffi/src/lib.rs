@@ -1,7 +1,7 @@
 use std::ffi::CStr;
-use std::os::raw::{c_int, c_char};
-use std::fs::{OpenOptions};
+use std::fs::OpenOptions;
 use std::io::Write;
+use std::os::raw::{c_char, c_int};
 
 #[no_mangle]
 pub extern "C" fn write_log_file(file_path: *const c_char, message: *const c_char) -> c_int {
@@ -26,13 +26,13 @@ pub extern "C" fn write_log_file(file_path: *const c_char, message: *const c_cha
         Ok(mut f) => match f.write(message.as_bytes()) {
             Ok(_) => 0,
             Err(_e) => {
-                dbg!("file: {} error: {:?}", file_path, );
+                dbg!("file: {} error: {:?}", file_path,);
                 2
-            },
+            }
         },
         Err(_e) => {
-            dbg!("file: {} error: {:?}", file_path, );
+            dbg!("file: {} error: {:?}", file_path,);
             1
-        },
+        }
     }
 }
