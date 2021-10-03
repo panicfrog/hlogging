@@ -1,38 +1,34 @@
-use std::ffi::CStr;
 use std::fs::OpenOptions;
 use std::io::Write;
-use std::os::raw::{c_char, c_int};
+use thiserror::Error;
 
-#[no_mangle]
-pub extern "C" fn write_log_file(file_path: *const c_char, message: *const c_char) -> c_int {
-    let file_path = unsafe {
-        assert!(!file_path.is_null());
-        CStr::from_ptr(file_path)
-    };
-    let message = unsafe {
-        assert!(!message.is_null());
-        CStr::from_ptr(message)
-    };
+#[derive(Error, Debug)]
+pub enum WriteFileError {
+    #[error("file not exists")]
+    FileError,
+    #[error("wrong permissions or other write error")]
+    WriteError,
+}
 
-    let file_path = file_path.to_str().expect("path error");
-    let message = message.to_str().expect("message error");
-
+pub fn write_file(filename: String, message: String) -> Result<(), WriteFileError> {
     let file = OpenOptions::new()
         .write(true)
         .create(true)
         .append(true)
-        .open(file_path);
+        .open(&filename);
     match file {
         Ok(mut f) => match f.write(message.as_bytes()) {
-            Ok(_) => 0,
+            Ok(_) => Ok(()),
             Err(_e) => {
-                dbg!("file: {} error: {:?}", file_path,);
-                2
+                dbg!("file: {} error: {:?}", &filename,);
+                Err(WriteFileError::WriteError)
             }
         },
         Err(_e) => {
-            dbg!("file: {} error: {:?}", file_path,);
-            1
+            dbg!("file: {} error: {:?}", &filename,);
+            Err(WriteFileError::FileError)
         }
     }
 }
+
+include!(concat!(env!("OUT_DIR"), "/hlogging.uniffi.rs"));
