@@ -3,7 +3,5 @@ enum WriteFileError {
   "FileError", "WriteError",
 };
 
-namespace hlogging {
-  [Throws=WriteFileError]
-  undefined write_file(string filename, string message);
-};
+[Throws=WriteFileError]
+undefined write_file(string filename, string message);
