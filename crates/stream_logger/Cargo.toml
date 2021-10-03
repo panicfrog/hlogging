@@ -6,7 +6,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
 name = "stream_logger"
-crate-type = ["staticlib", "cdylib", "dylib", "rlib"]
+crate-type = ["staticlib", "cdylib", "rlib"]
 
 [package.metadata.ios]
 build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]

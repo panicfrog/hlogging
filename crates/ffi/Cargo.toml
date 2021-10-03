@@ -5,7 +5,7 @@ edition = "2018"
 
 [lib]
 name = "ffi"
-crate-type = ["staticlib", "cdylib", "dylib", "rlib"]
+crate-type = ["staticlib", "cdylib",  "rlib"]
 
 [package.metadata.ios]
 build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
@@ -16,3 +16,6 @@ min_sdk_version = 16
 target_sdk_version = 29
 
 [dependencies]
+
+[build-dependencies]
+cbindgen = "0.20.0"
