@@ -34,7 +34,6 @@ impl std::fmt::Display for LoggingLevel {
 
 pub enum Metadata {
     String { value: String },
-    Display { value: Box<dyn Display> },
     Array { value: Vec<Metadata> },
     Map { value: HashMap<String, Metadata> },
 }

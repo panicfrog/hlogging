@@ -3,5 +3,14 @@ enum WriteFileError {
   "FileError", "WriteError",
 };
 
-[Throws=WriteFileError]
-undefined write_file(string filename, string message);
+[Enum]
+interface Metadata {
+    String(string value);
+    Array(sequence<Metadata> value);
+    Map(record<DOMString, Metadata> value);
+};
+
+namespace hlogging {
+    [Throws=WriteFileError]
+    undefined write_file(string filename, string message);
+};

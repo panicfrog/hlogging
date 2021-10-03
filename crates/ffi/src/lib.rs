@@ -1,6 +1,8 @@
 use std::fs::OpenOptions;
 use std::io::Write;
 use thiserror::Error;
+use std::fmt::Display;
+use std::collections::HashMap;
 
 #[derive(Error, Debug)]
 pub enum WriteFileError {
@@ -8,6 +10,13 @@ pub enum WriteFileError {
     FileError,
     #[error("wrong permissions or other write error")]
     WriteError,
+}
+
+pub enum Metadata {
+    String { value: String },
+    Display { value: Box<dyn Display> },
+    Array { value: Vec<Metadata> },
+    Map { value: HashMap<String, Metadata> },
 }
 
 pub fn write_file(filename: String, message: String) -> Result<(), WriteFileError> {
