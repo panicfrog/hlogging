@@ -1,8 +1,12 @@
+pub use hinterface::LoggingLevel;
+use logger_system;
+use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::Write;
+use std::sync::Arc;
+use stream_logger::StreamLogger;
 use thiserror::Error;
-use std::fmt::Display;
-use std::collections::HashMap;
+use uniffi::deps::log::logger;
 
 #[derive(Error, Debug)]
 pub enum WriteFileError {
@@ -14,9 +18,28 @@ pub enum WriteFileError {
 
 pub enum Metadata {
     String { value: String },
-    Display { value: Box<dyn Display> },
     Array { value: Vec<Metadata> },
     Map { value: HashMap<String, Metadata> },
+}
+
+fn convert_metadata(metadata: Metadata) -> hinterface::Metadata {
+    match metadata {
+        Metadata::String { value: value } => hinterface::Metadata::String { value },
+        Metadata::Array { value } => {
+            let _value = value
+                .into_iter()
+                .map(|v| convert_metadata(v))
+                .collect::<Vec<hinterface::Metadata>>();
+            hinterface::Metadata::Array { value: _value }
+        }
+        Metadata::Map { value } => {
+            let _value = value
+                .into_iter()
+                .map(|(k, v)| (k, convert_metadata(v)))
+                .collect::<HashMap<String, hinterface::Metadata>>();
+            hinterface::Metadata::Map { value: _value }
+        }
+    }
 }
 
 pub fn write_file(filename: String, message: String) -> Result<(), WriteFileError> {
@@ -38,6 +61,23 @@ pub fn write_file(filename: String, message: String) -> Result<(), WriteFileErro
             Err(WriteFileError::FileError)
         }
     }
+}
+
+#[derive(PartialEq)]
+pub enum HLoggingType {
+    StdStream,
+}
+
+// features of stream logger
+pub fn configure(label: String, level: LoggingLevel, logger_type: HLoggingType) {
+    if logger_type == HLoggingType::StdStream {
+        let stream_logger_handler = StreamLogger::new(label.as_str());
+        logger_system::configure(label, level, Arc::new(stream_logger_handler))
+    }
+}
+
+pub fn debug(metadata: Metadata, message: String, source: Option<String>) {
+    logger_system::debug(convert_metadata(metadata), message, source);
 }
 
 include!(concat!(env!("OUT_DIR"), "/hlogging.uniffi.rs"));

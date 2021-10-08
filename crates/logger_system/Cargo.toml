@@ -1,0 +1,20 @@
+[package]
+name = "logger_system"
+version = "0.1.0"
+edition = "2018"
+
+[lib]
+name = "logger_system"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[package.metadata.ios]
+build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
+
+[package.metadata.android]
+build_targets = ["aarch64-linux-android", "armv7-linux-androideabi"]
+min_sdk_version = 16
+target_sdk_version = 29
+
+[dependencies]
+once_cell = "1.8.0"
+hinterface = { path = "../hinterface", version = "0.1.0" }

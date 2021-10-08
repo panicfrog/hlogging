@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::fmt::{self, Display};
+use std::sync::Arc;
 
 #[cfg(test)]
 mod tests {
@@ -9,7 +10,7 @@ mod tests {
     }
 }
 
-#[derive(PartialEq, Eq, PartialOrd)]
+#[derive(PartialEq, Eq, PartialOrd,Debug)]
 pub enum LoggingLevel {
     Debug = 1,
     Info,
@@ -34,6 +35,7 @@ impl std::fmt::Display for LoggingLevel {
 
 pub enum Metadata {
     String { value: String },
+    Display { value: Box<dyn Display> },
     Array { value: Vec<Metadata> },
     Map { value: HashMap<String, Metadata> },
 }
@@ -63,52 +65,39 @@ impl std::fmt::Display for Metadata {
     }
 }
 
-pub trait LogHandler {
-    fn log(&self, level: &LoggingLevel, metadata: &Metadata, source: String, value: String);
+pub trait LogHandler: Send + Sync {
+    fn log(&self, level: &LoggingLevel, metadata: Metadata, source: String, value: String);
 }
+
+// pub trait SizedHandler: Sized + LogHandler {}
 
 #[allow(dead_code)]
-pub struct Logger<T: LogHandler + Sized> {
+pub struct Logger {
     level: LoggingLevel,
     label: String,
-    handler: T,
+    handler: Arc<dyn LogHandler>,
 }
 
-impl<T> Logger<T>
-where
-    T: LogHandler + Sized,
-{
-    pub fn new(level: LoggingLevel, label: &str, handler: T) -> Self {
+impl Logger {
+    pub fn get_label(&self) -> String {
+        self.label.clone()
+    }
+}
+
+impl Logger {
+    pub fn new(level: LoggingLevel, label: &str, handler: Arc<dyn LogHandler>) -> Self {
+        let h = handler.clone();
         Logger {
             level,
             label: label.to_string(),
-            handler,
+            handler: h,
         }
     }
 
-    fn log(&self, level: LoggingLevel, metadata: &Metadata, source: String, content: String) {
+    pub fn log(&self, level: LoggingLevel, metadata: Metadata, source: String, content: String) {
         if self.level > level {
             return;
         }
         self.handler.log(&level, metadata, source, content);
-    }
-
-    pub fn debug(&self, metadata: &Metadata, source: String, message: String) {
-        self.log(LoggingLevel::Debug, metadata, source, message);
-    }
-    pub fn info(&self, metadata: &Metadata, source: String, message: String) {
-        self.log(LoggingLevel::Info, metadata, source, message);
-    }
-    pub fn notice(&self, metadata: &Metadata, source: String, message: String) {
-        self.log(LoggingLevel::Notice, metadata, source, message);
-    }
-    pub fn warring(&self, metadata: &Metadata, source: String, message: String) {
-        self.log(LoggingLevel::Warning, metadata, source, message);
-    }
-    pub fn error(&self, metadata: &Metadata, source: String, message: String) {
-        self.log(LoggingLevel::Error, metadata, source, message);
-    }
-    pub fn critical(&self, metadata: &Metadata, source: String, message: String) {
-        self.log(LoggingLevel::Critical, metadata, source, message);
     }
 }

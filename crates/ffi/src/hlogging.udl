@@ -10,7 +10,17 @@ interface Metadata {
     Map(record<DOMString, Metadata> value);
 };
 
+enum LoggingLevel {
+    "Debug", "Info", "Notice", "Warning", "Error", "Critical",
+};
+
+enum HLoggingType {
+    "StdStream"
+};
+
 namespace hlogging {
     [Throws=WriteFileError]
     undefined write_file(string filename, string message);
+    undefined configure(string label, LoggingLevel level, HLoggingType logger_type);
+    undefined debug(Metadata metadata, string message, string? source);
 };
