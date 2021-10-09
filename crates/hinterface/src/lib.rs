@@ -10,7 +10,7 @@ mod tests {
     }
 }
 
-#[derive(PartialEq, Eq, PartialOrd,Debug)]
+#[derive(PartialEq, Eq, PartialOrd, Debug)]
 pub enum LoggingLevel {
     Debug = 1,
     Info,

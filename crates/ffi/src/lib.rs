@@ -94,6 +94,4 @@ pub fn critical(metadata: Metadata, message: String, source: Option<String>) {
     logger_system::critical(convert_metadata(metadata), message, source);
 }
 
-
-
 include!(concat!(env!("OUT_DIR"), "/hlogging.uniffi.rs"));
