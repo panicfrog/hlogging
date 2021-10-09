@@ -19,4 +19,5 @@ ffi = { path = "crates/ffi", version = "0.1.0" }
 hinterface = { path = "crates/hinterface", version = "0.1.0" }
 stream_logger = { path = "crates/stream_logger", version = "0.1.0" }
 logger_system = { path = "crates/logger_system", version = "0.1.0" }
+file_logger = { path = "crates/file_logger", version = "0.1.0" }
 

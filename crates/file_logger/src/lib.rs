@@ -54,7 +54,12 @@ impl LogHandler for FileLogger {
             .append(true)
             .open(&self.file)
             .expect("open file error");
-        file.write(l.as_bytes()).expect("write file error");
+        match file.write(l.as_bytes()) {
+            Ok(_) => (),
+            Err(e) => {
+                dbg!("{:?}", e);
+            }
+        };
     }
 }
 
