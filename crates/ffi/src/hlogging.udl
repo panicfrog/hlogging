@@ -23,4 +23,9 @@ namespace hlogging {
     undefined write_file(string filename, string message);
     undefined configure(string label, LoggingLevel level, HLoggingType logger_type);
     undefined debug(Metadata metadata, string message, string? source);
+    undefined info(Metadata metadata, string message, string? source);
+    undefined notice(Metadata metadata, string message, string? source);
+    undefined warring(Metadata metadata, string message, string? source);
+    undefined error(Metadata metadata, string message, string? source);
+    undefined critical(Metadata metadata, string message, string? source);
 };

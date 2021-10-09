@@ -25,7 +25,7 @@ pub fn debug(metadata: Metadata, message: String, source: Option<String>) {
     let source = if let Some(s) = source {
         s
     } else {
-        logger.get_label()
+       "".to_string()
     };
     logger.clone().log(Level::Debug, metadata, source, message);
 }
@@ -34,7 +34,7 @@ pub fn info(metadata: Metadata, message: String, source: Option<String>) {
     let source = if let Some(s) = source {
         s
     } else {
-        logger.get_label()
+       "" .to_string()
     };
     logger.clone().log(Level::Info, metadata, source, message);
 }
@@ -43,7 +43,7 @@ pub fn notice(metadata: Metadata, message: String, source: Option<String>) {
     let source = if let Some(s) = source {
         s
     } else {
-        logger.get_label()
+        "" .to_string()
     };
     logger.log(Level::Notice, metadata, source, message);
 }
@@ -52,7 +52,7 @@ pub fn warring(metadata: Metadata, message: String, source: Option<String>) {
     let source = if let Some(s) = source {
         s
     } else {
-        logger.get_label()
+        "" .to_string()
     };
     logger
         .clone()
@@ -63,7 +63,7 @@ pub fn error(metadata: Metadata, message: String, source: Option<String>) {
     let source = if let Some(s) = source {
         s
     } else {
-        logger.get_label()
+        "" .to_string()
     };
     logger.clone().log(Level::Error, metadata, source, message);
 }
@@ -72,7 +72,7 @@ pub fn critical(metadata: Metadata, message: String, source: Option<String>) {
     let source = if let Some(s) = source {
         s
     } else {
-        logger.get_label()
+        "" .to_string()
     };
     logger
         .clone()

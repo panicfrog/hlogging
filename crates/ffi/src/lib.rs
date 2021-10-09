@@ -6,7 +6,6 @@ use std::io::Write;
 use std::sync::Arc;
 use stream_logger::StreamLogger;
 use thiserror::Error;
-use uniffi::deps::log::logger;
 
 #[derive(Error, Debug)]
 pub enum WriteFileError {
@@ -24,7 +23,7 @@ pub enum Metadata {
 
 fn convert_metadata(metadata: Metadata) -> hinterface::Metadata {
     match metadata {
-        Metadata::String { value: value } => hinterface::Metadata::String { value },
+        Metadata::String { value } => hinterface::Metadata::String { value },
         Metadata::Array { value } => {
             let _value = value
                 .into_iter()
@@ -79,5 +78,22 @@ pub fn configure(label: String, level: LoggingLevel, logger_type: HLoggingType) 
 pub fn debug(metadata: Metadata, message: String, source: Option<String>) {
     logger_system::debug(convert_metadata(metadata), message, source);
 }
+pub fn info(metadata: Metadata, message: String, source: Option<String>) {
+    logger_system::info(convert_metadata(metadata), message, source);
+}
+pub fn notice(metadata: Metadata, message: String, source: Option<String>) {
+    logger_system::notice(convert_metadata(metadata), message, source);
+}
+pub fn warring(metadata: Metadata, message: String, source: Option<String>) {
+    logger_system::warring(convert_metadata(metadata), message, source);
+}
+pub fn error(metadata: Metadata, message: String, source: Option<String>) {
+    logger_system::error(convert_metadata(metadata), message, source);
+}
+pub fn critical(metadata: Metadata, message: String, source: Option<String>) {
+    logger_system::critical(convert_metadata(metadata), message, source);
+}
+
+
 
 include!(concat!(env!("OUT_DIR"), "/hlogging.uniffi.rs"));

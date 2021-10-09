@@ -1,6 +1,5 @@
 use chrono::Local;
 use hinterface::{LogHandler, LoggingLevel, Metadata};
-use std::io::{stdout, Write};
 
 #[allow(dead_code)]
 pub struct StreamLogger {
@@ -24,12 +23,17 @@ impl StreamLogger {
 impl LogHandler for StreamLogger {
     fn log(&self, level: &LoggingLevel, metadata: Metadata, source: String, value: String) {
         let time = Local::now().format("%Y-%m-%dT%H:%M:%S%z").to_string();
-        // TODO: merge two metadata
-        let l = format!(
-            "{} {} {}: {} [{}] {}",
-            time, level, self.label, metadata, source, value
-        );
-        stdout().write(l.as_bytes()).expect("write stdout error");
+        if source.is_empty() {
+            println!(
+                "{} {} {}: {} {}",
+                time, level, self.label, metadata, value
+            );
+        } else {
+            println!(
+                "{} {} {}: {} [{}] {}",
+                time, level, self.label, metadata, source, value
+            );
+        }
     }
 }
 
