@@ -50,7 +50,7 @@ impl std::fmt::Display for Metadata {
                     .iter()
                     .map(|d| d.to_string())
                     .collect::<Vec<_>>()
-                    .join(",");
+                    .join(", ");
                 write!(fmt, "[{}]", s)
             }
             Metadata::Map { value } => {
@@ -59,7 +59,7 @@ impl std::fmt::Display for Metadata {
                     .map(|(k, v)| format!("{} : {}", k, v))
                     .collect::<Vec<String>>()
                     .join(",");
-                write!(fmt, "{{ {} }}", v)
+                write!(fmt, "{{{}}}", v)
             }
         }
     }

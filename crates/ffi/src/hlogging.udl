@@ -14,8 +14,10 @@ enum LoggingLevel {
     "Debug", "Info", "Notice", "Warning", "Error", "Critical",
 };
 
-enum HLoggingType {
-    "StdStream"
+[Enum]
+interface HLoggingType {
+    StdStream();
+    FileLogger(string directory);
 };
 
 namespace hlogging {

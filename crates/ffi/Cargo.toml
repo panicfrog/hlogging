@@ -19,6 +19,7 @@ target_sdk_version = 29
 thiserror = "1.0.29"
 logger_system = { path = "../logger_system", version = "0.1.0" }
 stream_logger = { path = "../stream_logger", version = "0.1.0" }
+file_logger = { path = "../file_logger", version = "0.1.0" }
 hinterface = { path = "../hinterface", version = "0.1.0" }
 uniffi = { version = "0.14.0", features = ["builtin-bindgen"] }
 

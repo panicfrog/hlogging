@@ -1,8 +1,10 @@
+use file_logger::FileLogger;
 pub use hinterface::LoggingLevel;
 use logger_system;
 use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::Write;
+use std::path::PathBuf;
 use std::sync::Arc;
 use stream_logger::StreamLogger;
 use thiserror::Error;
@@ -62,16 +64,24 @@ pub fn write_file(filename: String, message: String) -> Result<(), WriteFileErro
     }
 }
 
-#[derive(PartialEq)]
 pub enum HLoggingType {
     StdStream,
+    FileLogger { directory: String },
 }
 
 // features of stream logger
 pub fn configure(label: String, level: LoggingLevel, logger_type: HLoggingType) {
-    if logger_type == HLoggingType::StdStream {
-        let stream_logger_handler = StreamLogger::new(label.as_str());
-        logger_system::configure(label, level, Arc::new(stream_logger_handler))
+    match logger_type {
+        HLoggingType::StdStream => {
+            let stream_logger_handler = StreamLogger::new(label.as_str());
+            logger_system::configure(label, level, Arc::new(stream_logger_handler))
+        }
+        HLoggingType::FileLogger { directory } => {
+            let mut path = PathBuf::new();
+            path.push(directory);
+            let file_logger_handler = FileLogger::new(label.as_str(), path);
+            logger_system::configure(label, level, Arc::new(file_logger_handler));
+        }
     }
 }
 

@@ -1,17 +1,14 @@
 use chrono::Local;
 use hinterface::{LogHandler, LoggingLevel, Metadata};
 
-#[allow(dead_code)]
 pub struct StreamLogger {
     label: String,
-    // metadata: Option<Metadata>,
 }
 
 impl StreamLogger {
     pub fn new(label: &str) -> Self {
         StreamLogger {
             label: label.to_string(),
-            // metadata,
         }
     }
 
@@ -42,7 +39,5 @@ mod tests {
     use std::fs::metadata;
 
     #[test]
-    fn it_works() {
-        
-    }
+    fn it_works() {}
 }
