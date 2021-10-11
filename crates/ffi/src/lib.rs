@@ -80,7 +80,9 @@ pub fn configure(label: String, level: LoggingLevel, logger_type: HLoggingType) 
             let mut path = PathBuf::new();
             path.push(directory);
             let file_logger_handler = FileLogger::new(label.as_str(), path);
+            let directory = file_logger_handler.get_directory().clone();
             logger_system::configure(label, level, Arc::new(file_logger_handler));
+            FileLogger::run(directory);
         }
     }
 }

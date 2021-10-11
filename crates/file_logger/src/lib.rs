@@ -1,35 +1,91 @@
 use chrono::Local;
 use hinterface::{LogHandler, LoggingLevel, Metadata};
-use std::fs;
-use std::fs::OpenOptions;
-use std::io::Write;
+use once_cell::sync::OnceCell;
 use std::path::PathBuf;
+use std::thread;
+use tokio::fs;
+use tokio::fs::OpenOptions;
+use tokio::io::AsyncWriteExt;
+use tokio::runtime::{Builder, Runtime};
+use tokio::sync::mpsc;
+use tokio::sync::mpsc::Sender;
+use std::sync::Arc;
+
+static SENDER: OnceCell<Sender<String>> = OnceCell::new();
+static RUNTIME: OnceCell<Arc<Runtime>> = OnceCell::new();
 
 pub struct FileLogger {
-    file: PathBuf,
+    directory: PathBuf,
     label: String,
 }
 
 impl FileLogger {
     pub fn new(label: &str, directory: PathBuf) -> Self {
-        let date = Local::now().format("%Y%m%d").to_string();
-        fs::create_dir_all(&directory).expect("not creating directory");
-        let file_path = directory.join(date);
-        let _ = OpenOptions::new()
-            .write(true)
-            .create(true)
-            .append(true)
-            .open(&file_path)
-            .expect("open file error");
-        // TODO: hold file descriptor avoid open file every time
+        // TODO: 记录directory
         FileLogger {
             label: label.to_string(),
-            file: file_path,
+            directory,
         }
+    }
+    pub fn get_directory(&self) -> PathBuf {
+        self.directory.clone()
     }
 
     pub fn get_label(&self) -> String {
         self.label.clone()
+    }
+}
+
+impl FileLogger {
+    pub fn run(directory: PathBuf) {
+        let date = Local::now().format("%Y%m%d").to_string();
+        let directory = directory.clone();
+        let file_path = directory.clone().join(date);
+        let (tx, mut rx) = mpsc::channel(100);
+        match SENDER.set(tx.clone()) {
+            Ok(_) => (),
+            Err(e) => {
+                dbg!("{:?}", e);
+            }
+        };
+        // let write_thread =
+            thread::spawn(move || {
+            let rt = Builder::new_current_thread()
+                .thread_name("hlogging_file_logger")
+                .thread_stack_size(3 * 1024 * 1024)
+                .build()
+                .unwrap();
+                let arc_rt = Arc::new(rt);
+                match RUNTIME.set(arc_rt.clone()) {
+                    Ok(_) => (),
+                    Err(e) => {
+                        dbg!("{:?}", e);
+                    }
+                };
+            arc_rt.block_on(async {
+                // TODO: 创建文件夹
+                fs::create_dir_all(&directory)
+                    .await
+                    .expect("not creating directory");
+                let mut file = OpenOptions::new()
+                    .write(true)
+                    .create(true)
+                    .append(true)
+                    .open(&file_path)
+                    .await
+                    .expect("can't create log file");
+                while let Some(l) = rx.recv().await {
+                    match file.write(l.as_bytes()).await {
+                        Ok(_) => (),
+                        Err(e) => {
+                            dbg!("{:?}", e);
+                        }
+                    };
+                }
+            });
+
+        });
+        // write_thread.join().unwrap();
     }
 }
 
@@ -48,18 +104,14 @@ impl LogHandler for FileLogger {
                 time, level, &self.label, metadata, source, value
             )
         };
-        let mut file = OpenOptions::new()
-            .write(true)
-            .create(true)
-            .append(true)
-            .open(&self.file)
-            .expect("open file error");
-        match file.write(l.as_bytes()) {
-            Ok(_) => (),
-            Err(e) => {
-                dbg!("{:?}", e);
+        RUNTIME.get().expect("get runtime error").spawn(async {
+            match SENDER.get().expect("").send(l).await {
+                Ok(_) => (),
+                Err(e) => {
+                    dbg!("{:?}", e);
+                }
             }
-        };
+        });
     }
 }
 
