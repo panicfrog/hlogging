@@ -35,9 +35,10 @@ impl FileLogger {
 
 impl FileLogger {
     pub fn run(directory: PathBuf) {
-        let date = Local::now().format("%Y%m%d").to_string();
+        let data = Local::now().format("%Y%m%d").to_string();
+        let name = format!("{}.log", data);
         let directory = directory.clone();
-        let file_path = directory.clone().join(date).join(".log");
+        let file_path = directory.clone().join(name);
         let (tx, mut rx) = mpsc::channel(1000);
         match SENDER.set(tx.clone()) {
             Ok(_) => (),
