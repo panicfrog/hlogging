@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::fmt::{self, Display};
+use std::fmt;
 use std::sync::Arc;
 
 #[cfg(test)]
@@ -35,7 +35,7 @@ impl std::fmt::Display for LoggingLevel {
 
 pub enum Metadata {
     String { value: String },
-    Display { value: Box<dyn Display> },
+    // Display { value: Box<dyn Display> },
     Array { value: Vec<Metadata> },
     Map { value: HashMap<String, Metadata> },
 }
@@ -44,7 +44,7 @@ impl std::fmt::Display for Metadata {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Metadata::String { value } => write!(fmt, "{}", value),
-            Metadata::Display { value } => write!(fmt, "{}", value),
+            // Metadata::Display { value } => write!(fmt, "{}", value),
             Metadata::Array { value } => {
                 let s: String = value
                     .iter()
@@ -65,8 +65,26 @@ impl std::fmt::Display for Metadata {
     }
 }
 
+/*
+callback interface FilterPlugin {
+    boolean filter([ByRef] Metadata metadata, [ByRef] string message);
+};
+
+callback interface HandlerPlugin {
+    string handle([ByRef] Metadata metadata, [ByRef] string message);
+};
+ */
+
 pub trait LogHandler: Send + Sync {
     fn log(&self, level: &LoggingLevel, metadata: Metadata, source: String, value: String);
+}
+
+pub trait FilterPlugin {
+    fn filter(&self, metadata: Metadata, message: String) -> bool;
+}
+
+pub trait HandlerPlugin {
+    fn handle(&self, metadata: Metadata, message: String) -> String;
 }
 
 // pub trait SizedHandler: Sized + LogHandler {}

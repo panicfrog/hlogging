@@ -20,6 +20,8 @@ interface HLoggingType {
     FileLogger(string directory);
 };
 
+
+
 namespace hlogging {
     [Throws=WriteFileError]
     undefined write_file(string filename, string message);
