@@ -19,7 +19,6 @@ pub struct FileLogger {
 
 impl FileLogger {
     pub fn new(label: &str, directory: PathBuf) -> Self {
-        // TODO: 记录directory
         FileLogger {
             label: label.to_string(),
             directory,
@@ -39,7 +38,7 @@ impl FileLogger {
         let date = Local::now().format("%Y%m%d").to_string();
         let directory = directory.clone();
         let file_path = directory.clone().join(date);
-        let (tx, mut rx) = mpsc::channel(100);
+        let (tx, mut rx) = mpsc::channel(1000);
         match SENDER.set(tx.clone()) {
             Ok(_) => (),
             Err(e) => {
