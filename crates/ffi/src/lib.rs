@@ -77,12 +77,9 @@ pub fn configure(label: String, level: LoggingLevel, logger_type: HLoggingType) 
             logger_system::configure(label, level, Arc::new(stream_logger_handler))
         }
         HLoggingType::FileLogger { directory } => {
-            let mut path = PathBuf::new();
-            path.push(directory);
-            let file_logger_handler = FileLogger::new(label.as_str(), path);
-            let directory = file_logger_handler.get_directory().clone();
+            let file_logger_handler = FileLogger::new(label.as_str(), PathBuf::from(directory));
+            file_logger_handler.run();
             logger_system::configure(label, level, Arc::new(file_logger_handler));
-            FileLogger::run(directory);
         }
     }
 }

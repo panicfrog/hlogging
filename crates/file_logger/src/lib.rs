@@ -34,11 +34,10 @@ impl FileLogger {
 }
 
 impl FileLogger {
-    pub fn run(directory: PathBuf) {
-        let data = Local::now().format("%Y%m%d").to_string();
-        let name = format!("{}.log", data);
-        let directory = directory.clone();
-        let file_path = directory.clone().join(name);
+    pub fn run(&self) {
+        let name = format!("{}.log", Local::now().format("%Y%m%d"));
+        let directory = self.get_directory();
+        let file_path = self.get_directory().join(name);
         let (tx, mut rx) = mpsc::channel(1000);
         match SENDER.set(tx.clone()) {
             Ok(_) => (),
@@ -53,7 +52,6 @@ impl FileLogger {
                 .build()
                 .unwrap();
             rt.block_on(async {
-                // TODO: 创建文件夹
                 fs::create_dir_all(&directory)
                     .await
                     .expect("not creating directory");
