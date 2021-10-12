@@ -6,13 +6,11 @@ use std::thread;
 use tokio::fs;
 use tokio::fs::OpenOptions;
 use tokio::io::AsyncWriteExt;
-use tokio::runtime::{Builder, Runtime};
+use tokio::runtime::Builder;
 use tokio::sync::mpsc;
 use tokio::sync::mpsc::Sender;
-use std::sync::Arc;
 
 static SENDER: OnceCell<Sender<String>> = OnceCell::new();
-static RUNTIME: OnceCell<Arc<Runtime>> = OnceCell::new();
 
 pub struct FileLogger {
     directory: PathBuf,
@@ -48,21 +46,13 @@ impl FileLogger {
                 dbg!("{:?}", e);
             }
         };
-        // let write_thread =
-            thread::spawn(move || {
+        thread::spawn(move || {
             let rt = Builder::new_current_thread()
                 .thread_name("hlogging_file_logger")
                 .thread_stack_size(3 * 1024 * 1024)
                 .build()
                 .unwrap();
-                let arc_rt = Arc::new(rt);
-                match RUNTIME.set(arc_rt.clone()) {
-                    Ok(_) => (),
-                    Err(e) => {
-                        dbg!("{:?}", e);
-                    }
-                };
-            arc_rt.block_on(async {
+            rt.block_on(async {
                 // TODO: 创建文件夹
                 fs::create_dir_all(&directory)
                     .await
@@ -83,9 +73,7 @@ impl FileLogger {
                     };
                 }
             });
-
         });
-        // write_thread.join().unwrap();
     }
 }
 
@@ -104,14 +92,12 @@ impl LogHandler for FileLogger {
                 time, level, &self.label, metadata, source, value
             )
         };
-        RUNTIME.get().expect("get runtime error").spawn(async {
-            match SENDER.get().expect("").send(l).await {
-                Ok(_) => (),
-                Err(e) => {
-                    dbg!("{:?}", e);
-                }
+        match SENDER.get().expect("").blocking_send(l) {
+            Ok(_) => (),
+            Err(e) => {
+                dbg!("{:?}", e);
             }
-        });
+        };
     }
 }
 
