@@ -1,5 +1,5 @@
 use file_logger::FileLogger;
-pub use hinterface::{LoggingLevel, HandlerPlugin, FilterPlugin, Metadata};
+pub use hinterface::{FilterPlugin, HandlerPlugin, LoggingLevel, Metadata};
 use logger_system;
 // use std::collections::HashMap;
 use std::fs::OpenOptions;

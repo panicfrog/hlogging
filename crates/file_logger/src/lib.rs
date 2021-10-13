@@ -3,14 +3,12 @@ use hinterface::{LogHandler, LoggingLevel, Metadata};
 use once_cell::sync::OnceCell;
 use std::path::PathBuf;
 use std::thread;
-use tokio::fs;
-use tokio::fs::OpenOptions;
-use tokio::io::AsyncWriteExt;
-use tokio::runtime::Builder;
-use tokio::sync::mpsc;
-use tokio::sync::mpsc::Sender;
 
-static SENDER: OnceCell<Sender<String>> = OnceCell::new();
+use crossbeam::channel::{bounded, Sender, select};
+
+use std::io::Write;
+
+static CROSSBEAM_SENDER: OnceCell<Sender<String>> = OnceCell::new();
 
 pub struct FileLogger {
     directory: PathBuf,
@@ -38,39 +36,37 @@ impl FileLogger {
         let name = format!("{}.log", Local::now().format("%Y%m%d"));
         let directory = self.get_directory();
         let file_path = self.get_directory().join(name);
-        let (tx, mut rx) = mpsc::channel(1000);
-        match SENDER.set(tx.clone()) {
+        let (s, r) = bounded(1000);
+        match CROSSBEAM_SENDER.set(s) {
             Ok(_) => (),
             Err(e) => {
                 dbg!("{:?}", e);
             }
-        };
+        }
+
         thread::spawn(move || {
-            let rt = Builder::new_current_thread()
-                .thread_name("hlogging_file_logger")
-                .thread_stack_size(3 * 1024 * 1024)
-                .build()
-                .unwrap();
-            rt.block_on(async {
-                fs::create_dir_all(&directory)
-                    .await
-                    .expect("not creating directory");
-                let mut file = OpenOptions::new()
-                    .write(true)
-                    .create(true)
-                    .append(true)
-                    .open(&file_path)
-                    .await
-                    .expect("can't create log file");
-                while let Some(l) = rx.recv().await {
-                    match file.write(l.as_bytes()).await {
-                        Ok(_) => (),
-                        Err(e) => {
-                            dbg!("{:?}", e);
-                        }
-                    };
+            std::fs::create_dir_all(&directory).expect("not creating directory");
+            let mut file = std::fs::OpenOptions::new()
+                .write(true)
+                .create(true)
+                .append(true)
+                .open(&file_path)
+                .expect("can't create log file");
+            loop {
+                select! {
+                    recv(r) -> l => {
+                       if let Ok(l) = l {
+                          match file.write(l.as_bytes()) {
+                              Ok(_) => (),
+                              Err(e) => {
+                                  dbg!("write error  {:?}", e);
+                              }
+                          };
+                       }
+
+                    },
                 }
-            });
+            }
         });
     }
 }
@@ -90,7 +86,11 @@ impl LogHandler for FileLogger {
                 time, level, &self.label, metadata, source, value
             )
         };
-        match SENDER.get().expect("").blocking_send(l) {
+        match CROSSBEAM_SENDER
+            .get()
+            .expect("get sender error")
+            .clone()
+            .send(l){
             Ok(_) => (),
             Err(e) => {
                 dbg!("{:?}", e);
