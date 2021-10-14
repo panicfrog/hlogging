@@ -2,6 +2,7 @@ use file_logger::FileLogger;
 pub use hinterface::{FilterPlugin, HandlerPlugin, LoggingLevel, Metadata};
 use logger_system;
 // use std::collections::HashMap;
+use mmap_logger::MmapLogger;
 use std::fs::OpenOptions;
 use std::io::Write;
 use std::path::PathBuf;
@@ -67,6 +68,7 @@ pub fn write_file(filename: String, message: String) -> Result<(), WriteFileErro
 pub enum HLoggingType {
     StdStream,
     FileLogger { directory: String },
+    MmapLogger { directory: String },
 }
 
 // features of stream logger
@@ -80,6 +82,11 @@ pub fn configure(label: String, level: LoggingLevel, logger_type: HLoggingType) 
             let file_logger_handler = FileLogger::new(label.as_str(), PathBuf::from(directory));
             file_logger_handler.run();
             logger_system::configure(label, level, Arc::new(file_logger_handler));
+        }
+        HLoggingType::MmapLogger { directory } => {
+            let mmap_logger_handler = MmapLogger::new(label.as_str(), PathBuf::from(directory));
+            mmap_logger_handler.run();
+            logger_system::configure(label, level, Arc::new(mmap_logger_handler));
         }
     }
 }
