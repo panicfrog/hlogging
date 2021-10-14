@@ -76,7 +76,7 @@ callback interface HandlerPlugin {
  */
 
 pub trait LogHandler: Send + Sync {
-    fn log(&self, level: &LoggingLevel, metadata: Metadata, source: String, value: String);
+    fn log(&self, level: &LoggingLevel, metadata: &Metadata, source: &str, value: &str);
 }
 
 pub trait FilterPlugin {
@@ -112,7 +112,7 @@ impl Logger {
         }
     }
 
-    pub fn log(&self, level: LoggingLevel, metadata: Metadata, source: String, content: String) {
+    pub fn log(&self, level: LoggingLevel, metadata: &Metadata, source: &str, content: &str) {
         if self.level > level {
             return;
         }

@@ -1,12 +1,11 @@
-use bytes::BufMut;
 use chrono::Local;
 use crossbeam::channel::{bounded, select, Sender};
 use hinterface::{LogHandler, LoggingLevel, Metadata};
 use memmap2::MmapMut;
 use once_cell::sync::OnceCell;
+use std::io::Write;
 use std::path::PathBuf;
 use std::thread;
-use std::io::Write;
 
 static MMAP_CROSSBEAM_SENDER: OnceCell<Sender<String>> = OnceCell::new();
 
@@ -46,14 +45,14 @@ impl MmapLogger {
 
         thread::spawn(move || {
             std::fs::create_dir_all(&directory).expect("not creating directory");
-            let mut file = std::fs::OpenOptions::new()
+            let file = std::fs::OpenOptions::new()
                 .read(true)
                 .write(true)
                 .create(true)
                 .open(&file_path)
                 .expect("can't create log file");
             let mut len = file.metadata().expect("get metadata error").len() as usize;
-            file.set_len((len + 64*1024) as u64).unwrap();
+            file.set_len((len + 64 * 1024) as u64).unwrap();
             let mut mmap = unsafe { MmapMut::map_mut(&file).expect("mmap failed") };
             loop {
                 select! {
@@ -81,9 +80,9 @@ impl MmapLogger {
 }
 
 impl LogHandler for MmapLogger {
-    fn log(&self, level: &LoggingLevel, metadata: Metadata, source: String, value: String) {
+    fn log(&self, level: &LoggingLevel, metadata: &Metadata, source: &str, value: &str) {
         //TODO  检测文件是否超过限制
-        let time = Local::now().format("%Y-%m-%dT%H:%M:%S%z").to_string();
+        let time = Local::now().format("%Y-%m-%dT%H:%M:%S%z");
         let l = if source.is_empty() {
             format!(
                 "{} {} {}: {} {}\n",
@@ -98,7 +97,6 @@ impl LogHandler for MmapLogger {
         match MMAP_CROSSBEAM_SENDER
             .get()
             .expect("get sender error")
-            .clone()
             .send(l)
         {
             Ok(_) => (),

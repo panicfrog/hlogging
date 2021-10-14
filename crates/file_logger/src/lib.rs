@@ -72,9 +72,9 @@ impl FileLogger {
 }
 
 impl LogHandler for FileLogger {
-    fn log(&self, level: &LoggingLevel, metadata: Metadata, source: String, value: String) {
+    fn log(&self, level: &LoggingLevel, metadata: &Metadata, source: &str, value: &str) {
         //TODO  检测文件是否超过限制
-        let time = Local::now().format("%Y-%m-%dT%H:%M:%S%z").to_string();
+        let time = Local::now().format("%Y-%m-%dT%H:%M:%S%z");
         let l = if source.is_empty() {
             format!(
                 "{} {} {}: {} {}\n",
@@ -86,12 +86,7 @@ impl LogHandler for FileLogger {
                 time, level, &self.label, metadata, source, value
             )
         };
-        match CROSSBEAM_SENDER
-            .get()
-            .expect("get sender error")
-            .clone()
-            .send(l)
-        {
+        match CROSSBEAM_SENDER.get().expect("get sender error").send(l) {
             Ok(_) => (),
             Err(e) => {
                 dbg!("{:?}", e);

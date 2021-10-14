@@ -18,8 +18,8 @@ impl StreamLogger {
 }
 
 impl LogHandler for StreamLogger {
-    fn log(&self, level: &LoggingLevel, metadata: Metadata, source: String, value: String) {
-        let time = Local::now().format("%Y-%m-%dT%H:%M:%S%z").to_string();
+    fn log(&self, level: &LoggingLevel, metadata: &Metadata, source: &str, value: &str) {
+        let time = Local::now().format("%Y-%m-%dT%H:%M:%S%z");
         if source.is_empty() {
             println!("{} {} {}: {} {}", time, level, self.label, metadata, value);
         } else {
