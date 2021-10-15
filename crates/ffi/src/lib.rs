@@ -92,22 +92,22 @@ pub fn configure(label: String, level: LoggingLevel, logger_type: HLoggingType) 
 }
 
 pub fn debug(metadata: Metadata, message: String, source: Option<String>) {
-    logger_system::debug(metadata, message, source);
+    logger_system::debug(metadata, &message, source);
 }
 pub fn info(metadata: Metadata, message: String, source: Option<String>) {
-    logger_system::info(metadata, message, source);
+    logger_system::info(metadata, &message, source);
 }
 pub fn notice(metadata: Metadata, message: String, source: Option<String>) {
-    logger_system::notice(metadata, message, source);
+    logger_system::notice(metadata, &message, source);
 }
 pub fn warring(metadata: Metadata, message: String, source: Option<String>) {
-    logger_system::warring(metadata, message, source);
+    logger_system::warring(metadata, &message, source);
 }
 pub fn error(metadata: Metadata, message: String, source: Option<String>) {
-    logger_system::error(metadata, message, source);
+    logger_system::error(metadata, &message, source);
 }
 pub fn critical(metadata: Metadata, message: String, source: Option<String>) {
-    logger_system::critical(metadata, message, source);
+    logger_system::critical(metadata, &message, source);
 }
 
 include!(concat!(env!("OUT_DIR"), "/hlogging.uniffi.rs"));

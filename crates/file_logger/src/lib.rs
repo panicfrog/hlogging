@@ -36,7 +36,7 @@ impl FileLogger {
         let name = format!("{}.log", Local::now().format("%Y%m%d"));
         let directory = self.get_directory();
         let file_path = self.get_directory().join(name);
-        let (s, r) = bounded(1000);
+        let (s, r) = bounded(600);
         match CROSSBEAM_SENDER.set(s) {
             Ok(_) => (),
             Err(e) => {
@@ -63,7 +63,6 @@ impl FileLogger {
                               }
                           };
                        }
-
                     },
                 }
             }

@@ -20,58 +20,34 @@ fn get_logger() -> &'static Arc<Logger> {
     LOGGER.get().expect("need configure")
 }
 
-pub fn debug(metadata: Metadata, message: String, source: Option<String>) {
+pub fn debug(metadata: Metadata, message: &str, source: Option<String>) {
     let logger = get_logger();
-    let source = if let Some(s) = source {
-        s
-    } else {
-        "".to_string()
-    };
+    let source = source.map_or("".to_string(), |v| v);
     logger.log(Level::Debug, &metadata, &source, &message);
 }
-pub fn info(metadata: Metadata, message: String, source: Option<String>) {
+pub fn info(metadata: Metadata, message: &str, source: Option<String>) {
     let logger = get_logger();
-    let source = if let Some(s) = source {
-        s
-    } else {
-        "".to_string()
-    };
+    let source = source.map_or("".to_string(), |v| v);
     logger.log(Level::Info, &metadata, &source, &message);
 }
-pub fn notice(metadata: Metadata, message: String, source: Option<String>) {
+pub fn notice(metadata: Metadata, message: &str, source: Option<String>) {
     let logger = get_logger();
-    let source = if let Some(s) = source {
-        s
-    } else {
-        "".to_string()
-    };
+    let source = source.map_or("".to_string(), |v| v);
     logger.log(Level::Notice, &metadata, &source, &message);
 }
-pub fn warring(metadata: Metadata, message: String, source: Option<String>) {
+pub fn warring(metadata: Metadata, message: &str, source: Option<String>) {
     let logger = get_logger();
-    let source = if let Some(s) = source {
-        s
-    } else {
-        "".to_string()
-    };
+    let source = source.map_or("".to_string(), |v| v);
     logger.log(Level::Warning, &metadata, &source, &message);
 }
-pub fn error(metadata: Metadata, message: String, source: Option<String>) {
+pub fn error(metadata: Metadata, message: &str, source: Option<String>) {
     let logger = get_logger();
-    let source = if let Some(s) = source {
-        s
-    } else {
-        "".to_string()
-    };
+    let source = source.map_or("".to_string(), |v| v);
     logger.log(Level::Error, &metadata, &source, &message);
 }
-pub fn critical(metadata: Metadata, message: String, source: Option<String>) {
+pub fn critical(metadata: Metadata, message: &str, source: Option<String>) {
     let logger = get_logger();
-    let source = if let Some(s) = source {
-        s
-    } else {
-        "".to_string()
-    };
+    let source = source.map_or("".to_string(), |v| v);
     logger.log(Level::Critical, &metadata, &source, &message);
 }
 
