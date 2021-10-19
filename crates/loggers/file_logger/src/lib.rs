@@ -1,10 +1,12 @@
 use chrono::Local;
+use std::time::{Duration};
 use hinterface::{LogHandler, LoggingLevel, Metadata};
 use once_cell::sync::OnceCell;
 use std::path::PathBuf;
 use std::thread;
+use std::io::{BufWriter};
 
-use crossbeam::channel::{bounded, select, Sender};
+use crossbeam::channel::{bounded, select, Sender, tick};
 
 use std::io::Write;
 
@@ -46,17 +48,19 @@ impl FileLogger {
 
         thread::spawn(move || {
             std::fs::create_dir_all(&directory).expect("not creating directory");
-            let mut file = std::fs::OpenOptions::new()
+            let file = std::fs::OpenOptions::new()
                 .write(true)
                 .create(true)
                 .append(true)
                 .open(&file_path)
                 .expect("can't create log file");
+            let mut buf_writer = BufWriter::new(file);
+            let ticker = tick(Duration::from_millis(300));
             loop {
                 select! {
                     recv(r) -> l => {
                        if let Ok(l) = l {
-                          match file.write(l.as_bytes()) {
+                          match buf_writer.write(l.as_bytes()) {
                               Ok(_) => (),
                               Err(e) => {
                                   dbg!("write error  {:?}", e);
@@ -64,6 +68,16 @@ impl FileLogger {
                           };
                        }
                     },
+                    recv(ticker) -> _ => {
+                        if buf_writer.buffer().len() > 0 {
+                            match buf_writer.flush() {
+                                Ok(_) => (),
+                                Err(e) => {
+                                    dbg!("write error  {:?}", e);
+                                }
+                            }
+                        }
+                    }
                 }
             }
         });
