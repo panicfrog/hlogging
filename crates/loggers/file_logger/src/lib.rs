@@ -5,10 +5,12 @@ use once_cell::sync::OnceCell;
 use std::path::PathBuf;
 use std::thread;
 use std::io::{BufWriter};
+use chacha20poly1305::aead::{AeadInPlace, NewAead, Aead};
 
 use crossbeam::channel::{bounded, select, Sender, tick};
 
 use std::io::Write;
+use chacha20poly1305::{Key, ChaCha20Poly1305, Nonce};
 
 static CROSSBEAM_SENDER: OnceCell<Sender<String>> = OnceCell::new();
 
@@ -106,6 +108,16 @@ impl LogHandler for FileLogger {
             }
         };
     }
+}
+
+fn crypto() {
+    let key = Key::from_slice(b"an example very very secret key."); // 32 bytes
+    let cipher = ChaCha20Poly1305::new(key);
+    let nonce = Nonce::from_slice(b"unique nonce"); // 12-bytes; unique per message
+
+    let ciphertext = cipher.encrypt(nonce, b"plaintext message".as_ref())
+        .expect("encryption failure!");
+
 }
 
 #[cfg(test)]
