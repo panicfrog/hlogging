@@ -21,7 +21,13 @@ interface HLoggingType {
     MmapLogger(string directory);
 };
 
+callback interface FilterPlugin {
+    boolean filter([ByRef] Metadata metadata, [ByRef] string message);
+};
 
+callback interface HandlerPlugin {
+    string handle([ByRef] Metadata metadata, [ByRef] string message);
+};
 
 namespace hlogging {
     [Throws=WriteFileError]

@@ -25,5 +25,5 @@ mmap_logger = { path = "../loggers/mmap_logger", version = "0.1.0" }
 uniffi = { version = "0.14.0", features = ["builtin-bindgen"] }
 
 [build-dependencies]
-uniffi_build = { version = "0.14.0", features = ["builtin-bindgen"] }
+uniffi_build = { version = "0.14.1", features = ["builtin-bindgen"] }
 
